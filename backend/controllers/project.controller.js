@@ -22,3 +22,16 @@ export const createProject = async (req, res) => {
     res.status(400).send(error.message);
   }
 };
+
+export const getAllProjects = async (req, res) => {
+  try {
+    const loggedInUser = await userModel.findOne({ email: req.user.email });
+    const projects = await projectService.getAllProjectByUserId({
+      userId: loggedInUser._id,
+    });
+    return res.status(200).json({ project: projects });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ error: error.message });
+  }
+};
