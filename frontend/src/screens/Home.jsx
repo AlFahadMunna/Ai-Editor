@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/user.context";
 import axios from "../config/axios";
 
@@ -6,6 +6,7 @@ const Home = () => {
   const { user } = useContext(UserContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projectName, setProjectName] = useState(null);
+  const [project, setProject] = useState([]);
   function createProject(e) {
     e.preventDefault();
     console.log({ projectName });
@@ -22,9 +23,19 @@ const Home = () => {
         console.log(error);
       });
   }
+  useEffect(() => {
+    axios
+      .get("/projects/all")
+      .then((res) => {
+        setProject(res.data.project);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
   return (
     <main className="p-4 ">
-      <div className="projects">
+      <div className="projects flex flex-wrap gap-3">
         <button
           onClick={() => setIsModalOpen(true)}
           className="project p-4 border border-slate-300 rounded-md"
@@ -32,6 +43,23 @@ const Home = () => {
           New project
           <i className="ml-2 ri-link"></i>
         </button>
+        {project.map((project) => (
+          <div
+            key={project._id}
+            className="project flex flex-col gap-2 p-4 border cursor-pointer border-slate-300 rounded-md min-w-52 hover:bg-slate-200 transition-all"
+          >
+            <h2 className="text-sm font-semibold  text-gray-700">
+              {project.name}
+            </h2>
+            <div className="flex gap-2">
+              <p>
+                <i className="ri-user-line"></i>Collaborators:
+              </p>
+              {project.users.length}
+            </div>
+            {/* <p className="text-sm text-gray-500">{project.description}</p> */}
+          </div>
+        ))}
       </div>
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
